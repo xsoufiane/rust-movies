@@ -1,5 +1,6 @@
 use crate::types::MovieId;
 use crate::{Genre, Movie};
+use itertools::Itertools;
 use rand::Rng;
 use std::collections::{HashMap, HashSet};
 
@@ -23,7 +24,9 @@ impl DB {
         movies_db
     }
 
-    pub fn add(&mut self, movie: Movie) {
+    /// movies are added after sorting genres. This makes genres comparison easier.
+    pub fn add(&mut self, mut movie: Movie) {
+        movie.genres.sort();
         self.movies_db.insert(movie.id, movie);
     }
 
@@ -48,34 +51,28 @@ impl DB {
 
     pub fn filter_movies_by_genres(
         &self,
-        movies: HashSet<MovieId>,
+        movies: HashSet<&MovieId>,
         genres: Vec<&Genre>,
     ) -> Vec<Movie> {
         let mut genres: Vec<Genre> = genres.into_iter().cloned().collect();
         genres.sort();
 
-        let mut filtered_movies: Vec<Movie> = movies
+        movies
             .iter()
+            .sorted()
             .filter_map(|id| match self.get_movie(id) {
                 None => {
                     tracing::info!("no movie for id: {}", id);
                     None
                 }
                 Some(movie) => {
-                    let mut movie_genres = movie.genres.clone();
-                    movie_genres.sort();
-
-                    if movie_genres == genres {
+                    if movie.genres == genres {
                         Some(movie.clone())
                     } else {
                         None
                     }
                 }
             })
-            .collect();
-
-        filtered_movies.sort_by(|a, b| a.id.cmp(&b.id));
-
-        filtered_movies
+            .collect()
     }
 }

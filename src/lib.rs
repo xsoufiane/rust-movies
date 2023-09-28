@@ -29,12 +29,10 @@ pub fn get_filtered_movies(genres: Vec<Genre>) -> Vec<types::Movie> {
             let combinations = genres.iter().combinations(i);
 
             for combination in combinations {
-                println!("{:?}", combination);
-
                 MOVIES_DB
                     .filter_movies_by_genres(
-                        GENRES_DB.get_movies_by_genres(combination.clone()),
-                        combination.clone(),
+                        GENRES_DB.get_movies_by_genres(&combination),
+                        combination,
                     )
                     .iter()
                     .for_each(|movie| {

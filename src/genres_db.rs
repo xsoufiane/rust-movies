@@ -40,14 +40,14 @@ impl DB {
     }
 
     /// set of movies that are in one of the genres
-    pub fn get_movies_by_genres(&self, genres: Vec<&Genre>) -> HashSet<MovieId> {
-        let mut movies_set: HashSet<MovieId> = HashSet::new();
+    pub fn get_movies_by_genres(&self, genres: &Vec<&Genre>) -> HashSet<&MovieId> {
+        let mut movies_set: HashSet<&MovieId> = HashSet::new();
 
         for genre in genres {
             match self.get_movies_by_genre(genre) {
                 None => tracing::info!("no movies for the {} genre", genre),
                 Some(movies) => movies.iter().for_each(|movie| {
-                    movies_set.insert(*movie);
+                    movies_set.insert(movie);
                 }),
             }
         }
